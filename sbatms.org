@@ -1,3 +1,4 @@
+
 #+options: toc:nil timestamp:nil
 #+latex_header: \usepackage{multicol}
 #+latex_header: \usepackage[english]{babel}
@@ -28,7 +29,7 @@ parts. So, SBATMS may not be a NIME in the traditional sense of the
 term, but it does sit nicely in an adjacent family of NIMEs: New
 Interfaces for Musical Exploration.
 
-** Influences
+* Influences
 In his lecture /The Influence of Peasant Music on Modern Music/[1],
 the composer Belá Bartók proposes three ways that a composer can
 incorporate folk music into her work. Bartók lays the methods out in
@@ -47,8 +48,8 @@ together four recent influences on my work: texts from the early years
 of artificial intelligence research, ecological psychology, the music
 of Harry Brant and the music of John Luther Adams.
 
-*** Artificial Intelligence
-Modern approaches to artifical intelligence emphasize statistical
+** Artificial Intelligence
+Modern approaches to artificial intelligence emphasize statistical
 learning and linear algebra. Such methods are effective and easy to
 optimize. However, in the early days of the field, researchers
 preferred to build solutions out of logical and linguistic systems;
@@ -64,7 +65,7 @@ through the recursive application of provable rules that are
 text-encodable and that build in layers of increasing abstraction and
 power, is arguably the fundamental belief of programming as a craft.[4]
 
-*** Ecological Psychology
+** Ecological Psychology
 Ecological psychology is a branch of psychology that attempts to work
 at the border of the organism and its environment. Oftentimes that
 border is thoroughly blurred, if not done away with altogether. Rather
@@ -75,7 +76,7 @@ field, particularly Michael Turvey, this leads to conclusions that
 radically reinterpret what consciousness, knowledge, and meaning are
 and where they "reside." Turvey does away with conventional ideas of
 mind altogether and formulates cognitive processes that are
-traditionally lableld "mental" as products of the meeting of the
+traditionally labeled "mental" as products of the meeting of the
 physical configuration of an organism and the physical configuration
 of its environment; that is, as an emergent property of the
 interaction between the complex systems that are organisms and the
@@ -83,7 +84,7 @@ complex systems that are environments.[5] This is to say that
 "intelligence" is both not unique to humans and not localized to any
 individual thing or being.
 
-*** Music as place and geography
+** Music as place and geography
 Harry Brant and John Luther Adams are two composers who have made
 their careers by composing large-scale, outdoor works that hover
 somewhere between installation and composition. A given piece might
@@ -95,7 +96,7 @@ relinquished control over a listeners linear, temporal experience of
 their music and instead exchanged it for control over how a listener
 might experience the piece in space. In a sense, they've performed an
 FFT on the idea of a musical piece.
-*** Closing
+** Closing
 SBATMS is an attempt to bring the above influences together in a
 single, embedded score. Each box represents a simple behavior and
 together they generate complexity. However, a performer does not have
@@ -130,7 +131,7 @@ system between boxes. Hot glue abounds.
 ** Interaction
 There are two modes of interaction that I have discovered. The primary
 mode is moving boxes about in different configurations. The other is
-to move one's ears across the boxes to ear distincly the different
+to move one's ears across the boxes to ear distinctly the different
 patterns each box is producing. These modes come together to produce
 an air of considered play: the performer/audience-member is able to
 let a system configuration remain static or to change for as long as
@@ -152,8 +153,121 @@ Paul Klee's /bricoleur/.[6]
 #+end_center
 
 * Software
+The software for SBATMS is written entirely in C++, using the Arduino
+headers. Each box is running the same simple program. That program is
+built around a "core message," a C array of unsigned 64-bit integers
+that is unique to each box. Each box uses this message in two
+capacities: it sonifies the contents of the message using bitwise
+operations and pulse-width modulation (PWM) and it broadcasts that
+message out to other boxes via its infrared LEDs. To facilitate these
+operations, the software has four main components: A reader, a parser,
+a sender, and a "bit player."
+
+** Messages
+Each box is initialized with two C arrays: one array that is
+hard-coded to have the values =[1,2,1]= and another containing a
+configurable number of values that are randomly initialized
+(randomness is seeded by reading analog pin 0 on the Arduino). The
+values in these arrays correspond to lengths of time, specifically the
+length of time that a box has its LEDs turned on. The messaging system
+is, in this way similar to Morse Code. The first array is used as
+"leader" for message broadcasting. If a box detects an incoming
+message it keeps track of the inputs it receives, but does not act on
+them until it receives a sequence of inputs that matches the values in
+the leader array:
+#+begin_src c++
+  // parser.cpp
+  case LEADER_LISTEN:
+        // set and increment
+        mLeader[mLeaderWritePos++] = word;
+
+        if (mLeaderWritePos == mLeaderSize) {
+          if (leaderMatch()) {
+            mState = MESSAGE_LISTEN;
+          }
+    
+          clearLeader();
+          mLeaderWritePos = 0;
+        }
+
+  // sketch.ino
+  if (parseOne.hasMessage()) {
+      mutateCore(parseOne.getMessage()); 
+      parseOne.listen();
+  }
+#+end_src
+
+Upon receipt of a message, the message is processed vís-a-vís the core
+message the box's software returns to watching for inputs. The processing
+of a message is carried out by the =mutateCore= method:
+#+begin_src c++
+  // sketch.ino
+  void mutateCore (const uint32_t * message) {
+    uint16_t idx = random(0, msgLen);
+    int32_t cW = coreMsg[idx], mW = message[idx];
+    int32_t dif = cW - mW;
+    if (dif > 0) {
+       coreMsg[idx] = constrain(cW - 1, 1, 10);
+    }
+    else if (dif < 0){
+       coreMsg[idx] = constrain(cW + 1, 1, 10);
+    }
+  }
+#+end_src
+
+A random index is chosen and the values from the received message and
+the core message are compared. The value at the corresponding index in
+the core message is then either incremented or decremented in an
+attempt to move closer to the received message. This change is then
+reflected in the sound produced by the box and in the LED patterns
+broadcast by the box.
+
+Through this process, boxes that are allowed to
+"communicate" for prolonged periods begin to converge in sound. It
+also means that a box that is communicating with multiple other boxes
+will tend to produce a noisier signal as it tries to match multiple
+different signals. Such patterns are the lynch pin of the piece: they
+provide consistent and repeatable patterns of overall behavior that
+are still specifically highly variable.
+
+** Sonification
+Sonification of the core message is accomplished using a single
+equation of bitwise operations. The specific equation was arrived at
+through experimentation in a Supercollider program that can be found
+in Appendix F. The work relies heavily upon the work of Ville-Matias
+Heikkilä [7], known online as "viznut," a demoscene artist who was
+instrumental in the surge of interest in "byte beat" in the mid and
+late 2000s.
+
+The operations are carried out by the =play= method of the =BitPulse=
+class, where =mWord= is a reference to the core message of the software
+#+begin_src c++
+  // bit_pulse.cpp
+  void BitPulse::play (uint32_t now) {
+    uint32_t x,y;
+    if (now >= mNextWrite) {
+      mVal = ((x=mTick>>mWords[0])
+              | (y=mTick>>mWords[1]))
+         ^ ((x^mWords[1])
+            | (y^mWords[0]));
+      analogWrite(mPin, (mTick * mVal));
+      mNextWrite = now + SAMPLE;
+      mTick+=mWords[0];
+    }
+  }
+
+#+end_src
 
 * Future
+Experimentation with SBATMS so far has been more rewarding than I had
+anticipated. The effect of certain configurations is marked and,
+happily, reproducible. As a result it is easy to begin to build up a
+vocabulary, that is for different configurations to come to have
+meaning for a performer. The strength of this effect, points to
+a concert practice involving, ideally, hundreds of boxes with scores
+that are blueprints for rearrangement of the boxes in time by teams of
+people: collective action leading to the development of social meaning
+for the boxes.
 
 #+begin_latex
 \end{multicols}
@@ -164,8 +278,8 @@ Paul Klee's /bricoleur/.[6]
 #+end_latex
 
 * Appendices
-*NB:* Only implementation files are included 
-** bit_pulse.cpp
+*NB:* Only implementation files are included
+** A. bit_pulse.cpp
 #+begin_src c++
   #include "math.h"
   #include "Arduino.h"
@@ -196,17 +310,9 @@ Paul Klee's /bricoleur/.[6]
       mTick+=mWords[0];
     }
   }
-
-  void
-  BitPulse::play2 ()
-  {
-    mTick++;
-    analogWrite(mPin, mVal);
-  }
-
 #+end_src
 
-** reader.cpp
+** B. reader.cpp
 #+begin_src c++
 #include "reader.h"  
 #include "Arduino.h"
@@ -318,7 +424,7 @@ bool Reader::detectShift2 (const uint8_t pinRegister, const uint8_t pins) {
 
 #+end_src
 
-** parser.cpp
+** C. parser.cpp
 #+begin_src c++
   #include "parser.h"
   #include "Arduino.h"
@@ -435,7 +541,7 @@ bool Reader::detectShift2 (const uint8_t pinRegister, const uint8_t pins) {
   }
 #+end_src
 
-** sender.cpp
+** D. sender.cpp
 #+begin_src c++
   #include "sender.h"
   #include "Arduino.h"
@@ -562,7 +668,7 @@ bool Reader::detectShift2 (const uint8_t pinRegister, const uint8_t pins) {
   }
 #+end_src
 
-** sketch.ino
+** E. sketch.ino
 #+begin_src c++
   #include "bit_pulse.h"
   #include "reader.h"
@@ -737,6 +843,30 @@ bool Reader::detectShift2 (const uint8_t pinRegister, const uint8_t pins) {
   }
 #+end_src
 
+** F. mockups/audio.scd
+#+begin_src sclang
+  (
+  Ndef(\bitter, { |pan = 0, gain = 0.1|
+          var words = Array.fill(5, {10.rand});
+          var t = PulseCount.ar(Impulse.ar(9e3));
+          var x = 1, y = 1;
+          words.postln;
+
+          Out.ar(0,
+                  Pan2.ar(
+                          HPF.ar((
+                                  ((x = x | (t & words[0])) & (y = y | (t | words[1])))
+                                  |
+                                  ((x + words[2]) * (y + words[3]))
+                                  - words[4] % 255
+                          ) / 127-1,
+                                  20
+                          ).tanh,
+                          pan, gain)
+                  );
+  }).play;
+  )
+#+end_src
 
 [1] Luckily a transcript is available here:
 http://www.richardtrythall.com/Resources/22a.BartokPeasantMusic.pdf
@@ -750,3 +880,6 @@ https://mitpress.mit.edu/sicp/full-text/book/book.html
 https://www.youtube.com/watch?v=cWztQt_nlDU
 [6] McLean, Alex. /Bricolage Programming in the Creative Arts/
 http://slab.org/writing/ppig.pdf
+[7] This post and the 2 October post are crucial reading for anyone
+interested in byte beat:
+http://countercomplex.blogspot.com/2011/10/some-deep-analysis-of-one-line-music.html
