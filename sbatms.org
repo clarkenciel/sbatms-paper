@@ -46,7 +46,7 @@ work with!)?
 SBATMS is one attempt to create an answer for myself and it brings
 together four recent influences on my work: texts from the early years
 of artificial intelligence research, ecological psychology, the music
-of Harry Brant and the music of John Luther Adams.
+of Henry Brant and the music of John Luther Adams.
 
 ** Artificial Intelligence
 Modern approaches to artificial intelligence emphasize statistical
@@ -85,7 +85,7 @@ complex systems that are environments.[5] This is to say that
 individual thing or being.
 
 ** Music as place and geography
-Harry Brant and John Luther Adams are two composers who have made
+Henry Brant and John Luther Adams are two composers who have made
 their careers by composing large-scale, outdoor works that hover
 somewhere between installation and composition. A given piece might
 encompass miles of land with dozens of performers strewn
@@ -117,16 +117,61 @@ incarnation the boxes themselves are nothing more than decorative
 boxes found at a /Michael's/ craft store); the circuits are simple;
 as a good old fashioned emergent system, the behaviors of the agents
 are simple.
+#+begin_center
+#+begin_latex
+\begin{Figure}
+  \includegraphics[width=\linewidth]{./media/outer_casing.jpg}
+  \linebreak
+  \caption{SBATMS}
+  \label{Fig. 1}
+\end{Figure}
+#+end_latex
+#+end_center
 
 ** Circuit and Construction
 The circuits for SBATMS are simple input-output devices: four infrared
-receivers, four infrared emitters and a single piezo. The emitters and
+receivers, four infrared emitters and a single piezo.
+#+begin_center
+#+begin_latex
+\begin{Figure}
+  \includegraphics[width=\linewidth]{./media/schematic.png}
+  \linebreak
+  \caption{SBATMS board schematic}
+  \label{Fig. 1}
+\end{Figure}
+#+end_latex
+#+end_center
+
+The emitters and
 receivers are set, in pairs, into the four sides of decorative boxes
 from /Michael's/ and arranged in such a way that two-way communication
 can occur between two boxes no matter the specific sides that are
-placed next to each other. The lid of each box is held down by
+placed next to each other.
+#+begin_center
+#+begin_latex
+\begin{Figure}
+  \includegraphics[width=\linewidth]{./media/leds.jpg}
+  \linebreak
+  \caption{SBATMS sensor/emitter pairs}
+  \label{Fig. 1}
+\end{Figure}
+#+end_latex
+#+end_center
+
+The lid of each box is held down by
 ceramic magnets, which serve a secondary function as a loose coupling
 system between boxes. Hot glue abounds.
+#+begin_center
+#+begin_latex
+\begin{Figure}
+  \includegraphics[width=\linewidth]{./media/guts.jpg}
+  \linebreak
+  \caption{SBATMS innards}
+  \label{Fig. 1}
+\end{Figure}
+#+end_latex
+#+end_center
+
 
 ** Interaction
 There are two modes of interaction that I have discovered. The primary
@@ -140,17 +185,6 @@ different levels of granularity. The restrictions intentionally
 encourage this kind of activity, which I find is distinctly
 composerly and heavily inspired by Andrew McLean's discussion of
 Paul Klee's /bricoleur/.[6]
-
-#+begin_center
-#+begin_latex
-\begin{Figure}
-  \includegraphics[width=\linewidth]{./media/schematic.png}
-  \linebreak
-  \caption{SBATMS board schematic}
-  \label{Fig. 1}
-\end{Figure}
-#+end_latex
-#+end_center
 
 * Software
 The software for SBATMS is written entirely in C++, using the Arduino
