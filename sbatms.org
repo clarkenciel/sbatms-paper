@@ -117,7 +117,28 @@ boxes found at a /Michael's/ craft store); the circuits are simple;
 as a good old fashioned emergent system, the behaviors of the agents
 are simple.
 
-** Implementation
+** Circuit and Construction
+The circuits for SBATMS are simple input-output devices: four infrared
+receivers, four infrared emitters and a single piezo. The emitters and
+receivers are set, in pairs, into the four sides of decorative boxes
+from /Michael's/ and arranged in such a way that two-way communication
+can occur between two boxes no matter the specific sides that are
+placed next to each other. The lid of each box is held down by
+ceramic magnets, which serve a secondary function as a loose coupling
+system between boxes. Hot glue abounds.
+
+** Interaction
+There are two modes of interaction that I have discovered. The primary
+mode is moving boxes about in different configurations. The other is
+to move one's ears across the boxes to ear distincly the different
+patterns each box is producing. These modes come together to produce
+an air of considered play: the performer/audience-member is able to
+let a system configuration remain static or to change for as long as
+she likes and she is able to experience these configurations at
+different levels of granularity. The restrictions intentionally
+encourage this kind of activity, which I find is distinctly
+composerly and heavily inspired by Andrew McLean's discussion of
+Paul Klee's /bricoleur/.[6]
 
 #+begin_center
 #+begin_latex
@@ -131,9 +152,6 @@ are simple.
 #+end_center
 
 * Software
-It comprises numerous agents that each follow the same simple program,
-with differing intial states. Each agent's program is then slowly
-changed through interaction
 
 * Future
 
@@ -730,3 +748,5 @@ https://www.princeton.edu/~wbialek/rome/refs/chomsky_3models.pdf
 https://mitpress.mit.edu/sicp/full-text/book/book.html
 [5] Turvey, Michael. /Nonrepresentational Perception and Action/.
 https://www.youtube.com/watch?v=cWztQt_nlDU
+[6] McLean, Alex. /Bricolage Programming in the Creative Arts/
+http://slab.org/writing/ppig.pdf
